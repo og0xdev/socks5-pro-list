@@ -120,7 +120,7 @@ def fetch_all_proxies(misc_file: str) -> list:
                     seen_proxies.update(new_proxies)
         print(f"\n[INFO] Total unique valid proxies: {len(all_proxies)}")
         
-        # Save to etc folder
+        # Save to proxies folder
         etc_proxies_file = './etc/all_socks5.txt'
         os.makedirs(os.path.dirname(etc_proxies_file), exist_ok=True)
         with open(etc_proxies_file, 'w') as f:
@@ -332,7 +332,7 @@ def main():
     scheduler_thread.start()
     
     try:
-        # Keep main thread alive
+	        # Keep main thread alive
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
