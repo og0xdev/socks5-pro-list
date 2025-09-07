@@ -1,0 +1,40 @@
+{
+ "sources": [
+    "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks5.txt",
+    "https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/socks5.txt",
+    "https://raw.githubusercontent.com/hookzof/socks5_list/master/proxy.txt",
+    "https://raw.githubusercontent.com/roosterkid/openproxylist/main/SOCKS5.txt",
+    "https://raw.githubusercontent.com/almroot/proxylist/master/socks5.txt",
+    "https://vakhov.github.io/fresh-proxy-list/socks5.txt",
+    "https://raw.githubusercontent.com/saschazesiger/Free-Proxies/master/proxies/socks5.txt",
+    "https://raw.githubusercontent.com/rdavydov/proxy-list/main/proxies/socks5.txt",
+    "https://raw.githubusercontent.com/ProxyScraper/ProxyScraper/main/socks5.txt",
+    "https://raw.githubusercontent.com/jetkai/proxy-list/main/online-proxies/txt/proxies-socks5.txt",
+    "https://raw.githubusercontent.com/r00tee/Proxy-List/refs/heads/main/Socks5.txt",
+    "https://www.proxy-list.download/api/v1/get?type=socks5",
+    "https://advanced.name/freeproxy/68bcf98185e45",
+    "https://raw.githubusercontent.com/databay-labs/free-proxy-list/refs/heads/master/socks5.txt",
+    "https://raw.githubusercontent.com/SevenworksDev/proxy-list/refs/heads/main/proxies/socks5.txt"
+  ],
+ "user_agents": [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
+  ],
+ "mac_vendors": [
+    "00:16:3E",
+    "00:1C:42",
+    "00:0C:29",
+    "00:50:56",
+    "08:00:27",
+    "0A:00:27",
+    "52:54:00"
+  ],
+ "five_eyes": [
+    "US",
+    "GB",
+    "CA",
+    "AU",
+    "NZ"
+  ] 
+}
