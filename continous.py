@@ -329,14 +329,14 @@ def scan_proxies():
         
         for i, result in enumerate(bandwidth_results, 1):
             test_str = "/".join(f"{s:.1f}" for s in result['tests'])
-            print(f"{i:2d}. {result['proxy']} - {result['bandwidth_mbps']:.1f} Mbps " +
+            print(f"{i:2d}." +
                   f"({test_str}) - {result['latency']:.0f}ms")
 
         # Save detailed results
         with open('top10_socks5.txt', 'w') as f:
             for result in bandwidth_results:
                 test_str = "/".join(f"{s:.1f}" for s in result['tests'])
-                f.write(f"{result['proxy']} | {result['bandwidth_mbps']:.1f} Mbps " +
+                f.write(f"" +
                         f"({test_str}) | {result['latency']:.0f}ms\n")
 
         print(f"\nSaved detailed results to top10_socks5.txt")
