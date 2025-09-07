@@ -120,8 +120,10 @@ def fetch_all_proxies(misc_file: str) -> list:
                     seen_proxies.update(new_proxies)
         print(f"\n[INFO] Total unique valid proxies: {len(all_proxies)}")
         
-        # Save to main directory as all_socks5.txt
-        with open('all_socks5.txt', 'w') as f:
+        # Save to etc folder
+        etc_proxies_file = './etc/all_socks5.txt'
+        os.makedirs(os.path.dirname(etc_proxies_file), exist_ok=True)
+        with open(etc_proxies_file, 'w') as f:
             for proxy in all_proxies:
                 f.write(proxy + '\n')
                 
@@ -322,12 +324,8 @@ def main():
     print(f"[INFO] Will scan proxies every {scan_interval} minutes")
     print("[INFO] Press Ctrl+C to stop the scanner")
     
-    # Check if we should use existing all_socks5.txt or fetch fresh
-    if not os.path.exists('all_socks5.txt') or input("Fetch fresh proxies? (y/n): ").lower() == 'y':
-        # Run first scan immediately
-        scan_proxies()
-    else:
-        print("[INFO] Using existing all_socks5.txt file")
+    # Run first scan immediately
+    scan_proxies()
     
     # Start the scheduler in a separate thread
     scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
@@ -338,7 +336,7 @@ def main():
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        print("\n[INFO] Stopping scraping...")
+        print("\n[INFO] Stopping scanner...")
 
 if __name__ == "__main__":
     main()
