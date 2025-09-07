@@ -7,7 +7,6 @@ import requests
 import json
 import re
 import ipaddress
-import statistics
 from datetime import datetime, timedelta
 import schedule
 import threading
@@ -35,7 +34,7 @@ class SOCKS5Checker:
             self.sock.sendall(request)
             response = self.sock.recv(4)
             if response[1] != 0x00:
-                raise ValueError(f"[WRN] Connect failed: {response[1]}")
+                raise ValueError(f"Connect failed: {response[1]}")
             result['latency'] = (time.perf_counter() - start) * 1000
         except Exception as e:
             result['error'] = str(e)
@@ -43,47 +42,6 @@ class SOCKS5Checker:
             if self.sock:
                 self.sock.close()
         return result
-
-def single_bandwidth_test(proxy: str, test_url: str = "https://httpbin.org/stream-bytes/500000", duration: int = 3) -> float:
-    """Single bandwidth test for one proxy"""
-    try:
-        proxies = {'http': f'socks5://{proxy}', 'https': f'socks5://{proxy}'}
-        start_time = time.time()
-        total_bytes = 0
-
-        with requests.get(test_url, proxies=proxies, stream=True, timeout=10) as response:
-            response.raise_for_status()
-            for chunk in response.iter_content(chunk_size=8192):
-                if time.time() - start_time >= duration:
-                    break
-                total_bytes += len(chunk)
-
-        elapsed = max(0.1, time.time() - start_time)  # Prevent division by zero
-        mbps = (total_bytes * 8) / (elapsed * 1000000)
-        return mbps
-    except:
-        return 0.0
-
-def run_bandwidth_tests(proxy_data: dict) -> dict:
-    """Run 4 bandwidth tests for a single proxy and return average"""
-    proxy = proxy_data['proxy']
-    speeds = []
-
-    for test_num in range(4):
-        speed = single_bandwidth_test(proxy)
-        speeds.append(speed)
-        time.sleep(0.5)  # Brief pause between tests
-
-    # Calculate average, remove outliers
-    if speeds:
-        avg_speed = statistics.mean(speeds)
-        proxy_data['bandwidth_mbps'] = avg_speed
-        proxy_data['tests'] = speeds
-    else:
-        proxy_data['bandwidth_mbps'] = 0.0
-        proxy_data['tests'] = []
-
-    return proxy_data
 
 def is_valid_ip(ip: str) -> bool:
     try:
@@ -143,6 +101,9 @@ def fetch_proxies_from_source(url: str) -> list:
 
 def fetch_all_proxies(misc_file: str) -> list:
     try:
+        # Create directory if it doesn't exist
+        os.makedirs(os.path.dirname(misc_file), exist_ok=True)
+        
         with open(misc_file, 'r') as f:
             data = json.load(f)
         all_proxies = []
@@ -158,9 +119,14 @@ def fetch_all_proxies(misc_file: str) -> list:
                     all_proxies.extend(new_proxies)
                     seen_proxies.update(new_proxies)
         print(f"\n[INFO] Total unique valid proxies: {len(all_proxies)}")
-        with open('all_socks5_untested.txt', 'w') as f:
+        
+        # Save to etc folder
+        etc_proxies_file = 'all_socks5.txt'
+        os.makedirs(os.path.dirname(etc_proxies_file), exist_ok=True)
+        with open(etc_proxies_file, 'w') as f:
             for proxy in all_proxies:
                 f.write(proxy + '\n')
+                
         return all_proxies
     except Exception as e:
         print(f"[ERR] Error: {e}")
@@ -169,6 +135,9 @@ def fetch_all_proxies(misc_file: str) -> list:
 # Cache functions
 def load_cache(cache_file: str = "./etc/proxy_cache.json") -> dict:
     """Load proxy cache from file"""
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(cache_file), exist_ok=True)
+    
     if os.path.exists(cache_file):
         try:
             with open(cache_file, 'r') as f:
@@ -179,6 +148,9 @@ def load_cache(cache_file: str = "./etc/proxy_cache.json") -> dict:
 
 def save_cache(cache: dict, cache_file: str = "./etc/proxy_cache.json"):
     """Save proxy cache to file"""
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(cache_file), exist_ok=True)
+    
     with open(cache_file, 'w') as f:
         json.dump(cache, f)
 
@@ -204,8 +176,11 @@ def clear_old_cache(cache: dict, max_age_minutes: int = 15) -> dict:
     return valid_cache
 
 # Top proxies tracking
-def update_top_proxies(new_results: list, top_file: str = "top50_best_json.txt", max_entries: int = 50):
+def update_top_proxies(new_results: list, top_file: str = "./etc/top_socks5.txt", max_entries: int = 50):
     """Update the list of top proxies with new results"""
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(top_file), exist_ok=True)
+    
     # Load existing top proxies
     if os.path.exists(top_file):
         try:
@@ -299,6 +274,8 @@ def scan_proxies():
                 if result['error'] is None and result['latency'] <= max_latency:
                     good_proxies.append(result)
                     print(f"✅ {result['proxy']} - {result['latency']:.0f}ms")
+                else:
+                    print(f"❌ {result['proxy']} - {result['error'] or 'High latency'}")
     
     # Save updated cache
     save_cache(cache)
@@ -309,37 +286,22 @@ def scan_proxies():
     top_proxies = [p for p in good_proxies if p['latency'] <= 300]
     update_top_proxies(top_proxies)
     
-    # Run bandwidth tests on top 10 proxies
+    # Display top 10 results
     if top_proxies:
         top_proxies.sort(key=lambda x: x['latency'])
         top_10 = top_proxies[:10]
 
-        print("[INFO] Running bandwidth tests on top 10 proxies...")
-
-        # Run bandwidth tests in parallel
-        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-            bandwidth_results = list(executor.map(run_bandwidth_tests, top_10))
-
-        # Sort by bandwidth
-        bandwidth_results.sort(key=lambda x: x['bandwidth_mbps'], reverse=True)
-
-        # Display results
-        print("\n[HIT] Top 10 Proxies by Average Bandwidth:")
-        print("=" * 65)
+        print("\n" + "🔥 TOP 10 LOW-LATENCY PROXIES 🔥".center(50))
+        print("=" * 50)
+        print(f"{'#':<3} {'PROXY':<21} {'LATENCY':<8}")
+        print("-" * 50)
         
-        for i, result in enumerate(bandwidth_results, 1):
-            test_str = "/".join(f"{s:.1f}" for s in result['tests'])
-            print(f"{i:2d}." +
-                  f"({test_str}) - {result['latency']:.0f}ms")
-
-        # Save detailed results
-        with open('top10_socks5.txt', 'w') as f:
-            for result in bandwidth_results:
-                test_str = "/".join(f"{s:.1f}" for s in result['tests'])
-                f.write(f"" +
-                        f"({test_str}) | {result['latency']:.0f}ms\n")
-
-        print(f"\nSaved detailed results to top10_socks5.txt")
+        for i, result in enumerate(top_10, 1):
+            status = "✅" if result['latency'] <= 100 else "🟡" if result['latency'] <= 200 else "🟠"
+            print(f"{i:2d}. {result['proxy']:<21} {status} {result['latency']:5.0f}ms")
+        
+        print("=" * 50)
+        print("✅ <=100ms  🟡 <=200ms  🟠 <=300ms")
     
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Scan completed")
 
