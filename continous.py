@@ -255,7 +255,7 @@ def scan_proxies():
     cache = clear_old_cache(cache)  # Clear expired entries
     
     # Always fetch fresh proxies
-    proxies_list = fetch_all_proxies('misc.txt')
+    proxies_list = fetch_all_proxies('./etc/misc.txt')
     
     if not proxies_list:
         print("[WRN] No valid proxies found!")
