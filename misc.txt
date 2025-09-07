@@ -12,7 +12,6 @@
     "https://raw.githubusercontent.com/jetkai/proxy-list/main/online-proxies/txt/proxies-socks5.txt",
     "https://raw.githubusercontent.com/r00tee/Proxy-List/refs/heads/main/Socks5.txt",
     "https://www.proxy-list.download/api/v1/get?type=socks5",
-    "https://advanced.name/freeproxy/68bcf98185e45",
     "https://raw.githubusercontent.com/databay-labs/free-proxy-list/refs/heads/master/socks5.txt"
   ]
 }
