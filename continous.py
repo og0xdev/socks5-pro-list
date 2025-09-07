@@ -167,7 +167,7 @@ def fetch_all_proxies(misc_file: str) -> list:
         return []
 
 # Cache functions
-def load_cache(cache_file: str = "proxy_cache.json") -> dict:
+def load_cache(cache_file: str = "./etc/proxy_cache.json") -> dict:
     """Load proxy cache from file"""
     if os.path.exists(cache_file):
         try:
@@ -177,7 +177,7 @@ def load_cache(cache_file: str = "proxy_cache.json") -> dict:
             return {}
     return {}
 
-def save_cache(cache: dict, cache_file: str = "proxy_cache.json"):
+def save_cache(cache: dict, cache_file: str = "./etc/proxy_cache.json"):
     """Save proxy cache to file"""
     with open(cache_file, 'w') as f:
         json.dump(cache, f)
