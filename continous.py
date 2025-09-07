@@ -158,7 +158,7 @@ def fetch_all_proxies(misc_file: str) -> list:
                     all_proxies.extend(new_proxies)
                     seen_proxies.update(new_proxies)
         print(f"\n[INFO] Total unique valid proxies: {len(all_proxies)}")
-        with open('huge_socks5.txt', 'w') as f:
+        with open('all_socks5_untested.txt', 'w') as f:
             for proxy in all_proxies:
                 f.write(proxy + '\n')
         return all_proxies
@@ -204,7 +204,7 @@ def clear_old_cache(cache: dict, max_age_minutes: int = 15) -> dict:
     return valid_cache
 
 # Top proxies tracking
-def update_top_proxies(new_results: list, top_file: str = "top_socks5.txt", max_entries: int = 50):
+def update_top_proxies(new_results: list, top_file: str = "top50_best_json.txt", max_entries: int = 50):
     """Update the list of top proxies with new results"""
     # Load existing top proxies
     if os.path.exists(top_file):
@@ -333,13 +333,13 @@ def scan_proxies():
                   f"({test_str}) - {result['latency']:.0f}ms")
 
         # Save detailed results
-        with open('fast_proxies.txt', 'w') as f:
+        with open('top10_socks5.txt', 'w') as f:
             for result in bandwidth_results:
                 test_str = "/".join(f"{s:.1f}" for s in result['tests'])
                 f.write(f"{result['proxy']} | {result['bandwidth_mbps']:.1f} Mbps " +
                         f"({test_str}) | {result['latency']:.0f}ms\n")
 
-        print(f"\nSaved detailed results to fast_proxies.txt")
+        print(f"\nSaved detailed results to top10_socks5.txt")
     
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Scan completed")
 
